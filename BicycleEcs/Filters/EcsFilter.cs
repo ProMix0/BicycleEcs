@@ -1,8 +1,9 @@
-﻿namespace BicycleEcs
+﻿using System.Collections;
+
+namespace BicycleEcs
 {
-    public interface IEcsFilter:IDisposable
+    public interface IEcsFilter : IDisposable, IEnumerable<int>
     {
-        IEnumerable<int> FilteredEntities();
     }
 
     public class EcsFilter : IEcsFilter
@@ -68,11 +69,15 @@
                     return;
 
             filteredEntities.Add(entity);
+
+        public IEnumerator<int> GetEnumerator()
+        {
+            return filteredEntities.GetEnumerator();
         }
 
-        public IEnumerable<int> FilteredEntities()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            return filteredEntities;
+            return GetEnumerator();
         }
 
         public void Dispose()
