@@ -36,6 +36,8 @@ namespace BicycleEcs
         {
             poolsIndexes = new(capacity);
             pools = new IComponentPool[capacity];
+
+            ResizePools(capacity);
         }
 
         public void Init(IEntitiesManager entityManager)
