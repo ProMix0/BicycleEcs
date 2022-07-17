@@ -37,15 +37,8 @@ namespace BicycleEcs
 
         private void OnIncludeAdd(int entity)
         {
-            for (int i = 0; i < include.Length; i++)
-                if (!poolsList.GetPoolByIndex(i).HasComponent(entity))
-                    return;
-
-            for (int i = 0; i < exclude.Length; i++)
-                if (poolsList.GetPoolByIndex(i).HasComponent(entity))
-                    return;
-
-            filteredEntities.Add(entity);
+            if (IsCompatible(entity))
+                filteredEntities.Add(entity);
         }
 
         private void OnIncludeRemove(int entity)
@@ -60,15 +53,22 @@ namespace BicycleEcs
 
         private void OnExcludeRemove(int entity)
         {
+            if (IsCompatible(entity))
+                filteredEntities.Add(entity);
+        }
+
+        private bool IsCompatible(int entity)
+        {
             for (int i = 0; i < include.Length; i++)
                 if (!poolsList.GetPoolByIndex(i).HasComponent(entity))
-                    return;
+                    return false;
 
             for (int i = 0; i < exclude.Length; i++)
                 if (poolsList.GetPoolByIndex(i).HasComponent(entity))
-                    return;
+                    return false;
 
-            filteredEntities.Add(entity);
+            return true;
+        }
 
         public IEnumerator<int> GetEnumerator()
         {
