@@ -50,6 +50,7 @@ namespace BicycleEcs
             int poolSize = entities.Capacity;
 
             int entity = entities.Create();
+            entities[entity] = new() { alive = true, componentsCount = 0 };
             if (poolSize != entities.Capacity)
                 OnPoolResize?.Invoke(entities.Capacity);
 
@@ -66,7 +67,10 @@ namespace BicycleEcs
         {
             for (int i = 0; i < count && noComponents.TryDequeue(out int entity); i++)
                 if (entities[entity].componentsCount == 0 && entities[entity].alive)
+                {
+                    entities[entity].alive = false;
                     entities.Delete(entity);
+                }
         }
 
         private void OnAddComponent(int entity)
