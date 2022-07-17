@@ -14,7 +14,7 @@ namespace BicycleEcs
 
         private List<int> filteredEntities = new(32);
 
-        public EcsFilter(ComponentsMask mask, IPoolsList poolsList)
+        public EcsFilter(ComponentsMask mask, IPoolsList poolsList, IEntitiesManager entitiesManager)
         {
             include = mask.include.ToArray();
             exclude = mask.exclude.ToArray();
@@ -33,6 +33,8 @@ namespace BicycleEcs
                 pool.OnEntityAdded += OnExcludeAdd;
                 pool.OnEntityRemoved += OnExcludeRemove;
             }
+
+            filteredEntities.AddRange(entitiesManager.Enumerate().Where(IsCompatible));
         }
 
         private void OnIncludeAdd(int entity)

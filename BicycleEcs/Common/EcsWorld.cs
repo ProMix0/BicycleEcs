@@ -36,7 +36,7 @@ namespace BicycleEcs
 
             EntitiesManager.Init(PoolsList);
             PoolsList.Init(EntitiesManager);
-            FiltersManager.Init(PoolsList);
+            FiltersManager.Init(PoolsList, EntitiesManager);
 
             inited = true;
         }
