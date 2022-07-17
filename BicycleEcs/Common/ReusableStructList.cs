@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,7 @@ namespace BicycleEcs
         public ref T this[int i] => ref array[i];
 
         public int Capacity => array.Length;
+        public int Count => itemsIndex + 1;
 
         public ReusableStructList(int capacity)
         {
@@ -65,6 +67,14 @@ namespace BicycleEcs
         {
             array = Array.Empty<T>();
             deleted.Clear();
+        }
+
+        public IEnumerable<T> Enumerate()
+        {
+            //TODO
+            for (int i = 0; i <= itemsIndex; i++)
+                if (!deleted.Contains(i))
+                    yield return array[i];
         }
     }
 }

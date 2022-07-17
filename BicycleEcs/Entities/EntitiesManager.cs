@@ -13,6 +13,7 @@ namespace BicycleEcs
         int CreateEntity();
         void DeleteEntity(int entity);
         void Init(IPoolsList poolsList);
+        IEnumerable<int> Enumerate();
     }
 
     public class EntitiesManager : IEntitiesManager
@@ -96,6 +97,13 @@ namespace BicycleEcs
 
             noComponents?.Clear();
             noComponents = null;
+        }
+
+        public IEnumerable<int> Enumerate()
+        {
+            for (int i = 1; i < entities.Count; i++)
+                if (entities[i].alive)
+                    yield return i;
         }
     }
 
