@@ -63,6 +63,8 @@ namespace BicycleEcs
                 Array.Resize(ref pools, pools.Length << 1);
             poolsIndexes[typeof(T)] = PoolsCount;
             pools[PoolsCount++] = pool;
+
+            OnAddPool?.Invoke(pool);
         }
 
         public int GetIndexOfPool<T>()
