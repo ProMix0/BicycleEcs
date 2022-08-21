@@ -100,12 +100,12 @@ namespace BicycleEcs
                 }
             }
 
-            poolsList = null;
-            include = null;
-            exclude = null;
+            poolsList = null!;
+            include = null!;
+            exclude = null!;
 
             filteredEntities?.Clear();
-            filteredEntities = null;
+            filteredEntities = null!;
         }
     }
 }

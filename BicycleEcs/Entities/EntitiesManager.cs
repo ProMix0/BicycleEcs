@@ -18,11 +18,11 @@ namespace BicycleEcs
 
     public class EntitiesManager : IEntitiesManager
     {
-        private ReusableStructList<EntityInfo> entities;
+        private ReusableStructList<EntityInfo> entities = null!;
 
-        public event Action<int>? OnPoolResize;
+        public event Action<int> OnPoolResize = null!;
 
-        private IPoolsList poolsList;
+        private IPoolsList poolsList = null!;
 
         private Queue<int> noComponents = new();
 
@@ -89,14 +89,14 @@ namespace BicycleEcs
         public void Dispose()
         {
             entities?.Clear();
-            entities = null;
+            entities = null!;
 
             if (poolsList != null)
                 poolsList.OnAddPool -= OnAddPool;
-            poolsList = null;
+            poolsList = null!;
 
             noComponents?.Clear();
-            noComponents = null;
+            noComponents = null!;
         }
 
         public IEnumerable<int> Enumerate()

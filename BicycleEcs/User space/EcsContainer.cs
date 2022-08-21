@@ -48,11 +48,11 @@ namespace BicycleEcs
                 for (int i = 0; i < ecsSystems.Length; i++)
                     if (ecsSystems[i] is IEcsDestroySystem destroySystem)
                         destroySystem.Destroy(world);
-            ecsSystems = null;
-            runSystems = null;
+            ecsSystems = null!;
+            runSystems = null!;
 
             world?.Dispose();
-            world = null;
+            world = null!;
         }
     }
 }

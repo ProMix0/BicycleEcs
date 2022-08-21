@@ -47,9 +47,9 @@ namespace BicycleEcs
             FiltersManager?.Dispose();
             PoolsList?.Dispose();
 
-            EntitiesManager = null;
-            FiltersManager = null;
-            PoolsList = null;
+            EntitiesManager = null!;
+            FiltersManager = null!;
+            PoolsList = null!;
         }
     }
 }

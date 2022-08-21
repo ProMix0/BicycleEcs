@@ -38,7 +38,7 @@ namespace BicycleEcs
         {
             if (deleted.TryDequeue(out index))
             {
-                array[index] = null;
+                array[index] = null!;
                 return array[index];
             }
 
@@ -52,7 +52,7 @@ namespace BicycleEcs
         {
             if (deleted.TryDequeue(out int index))
             {
-                array[index] = null;
+                array[index] = null!;
                 return index;
             }
 

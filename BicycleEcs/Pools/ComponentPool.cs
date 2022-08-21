@@ -26,8 +26,8 @@
         private ReusableStructList<T> components;
         private int[] indexes;
 
-        public event Action<int> OnEntityAdded;
-        public event Action<int> OnEntityRemoved;
+        public event Action<int> OnEntityAdded = null!;
+        public event Action<int> OnEntityRemoved = null!;
 
         public ComponentPool(int capacity)
         {
@@ -86,9 +86,9 @@
         public void Dispose()
         {
             components?.Clear();
-            components = null;
+            components = null!;
 
-            indexes = null;
+            indexes = null!;
         }
     }
 }

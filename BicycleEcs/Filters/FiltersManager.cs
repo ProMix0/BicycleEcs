@@ -17,8 +17,8 @@ namespace BicycleEcs
     {
         private SortedDictionary<ComponentsMask, IEcsFilter> filters;
 
-        private IPoolsList poolsList;
-        private IEntitiesManager entitiesManager;
+        private IPoolsList poolsList = null!;
+        private IEntitiesManager entitiesManager = null!;
 
         public FiltersManager()
         {
@@ -38,7 +38,7 @@ namespace BicycleEcs
 
         public IEcsFilter GetFilter(ComponentsMask mask)
         {
-            if (filters.TryGetValue(mask, out IEcsFilter result))
+            if (filters.TryGetValue(mask, out IEcsFilter? result))
                 return result;
 
             result = new EcsFilter(mask, poolsList, entitiesManager);
@@ -52,9 +52,9 @@ namespace BicycleEcs
                 foreach (var filter in filters.Values)
                     filter.Dispose();
             filters?.Clear();
-            filters = null;
+            filters = null!;
 
-            poolsList = null;
+            poolsList = null!;
         }
     }
 }

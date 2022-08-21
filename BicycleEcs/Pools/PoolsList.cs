@@ -26,11 +26,11 @@ namespace BicycleEcs
 
         public int PoolsCount { get; private set; } = 0;
 
-        private IEntitiesManager entityManager;
+        private IEntitiesManager entityManager = null!;
 
         private int indexesSize;
 
-        public event Action<IComponentPool> OnAddPool;
+        public event Action<IComponentPool> OnAddPool = null!;
 
         public PoolsList(int capacity = 32)
         {
@@ -100,15 +100,15 @@ namespace BicycleEcs
         {
             if (entityManager != null)
                 entityManager.OnPoolResize -= ResizePools;
-            entityManager = null;
+            entityManager = null!;
 
             poolsIndexes?.Clear();
-            poolsIndexes = null;
+            poolsIndexes = null!;
 
             if (pools != null)
                 for (int i = 0; i < PoolsCount; i++)
                     pools[i].Dispose();
-            pools = null;
+            pools = null!;
         }
     }
 }
