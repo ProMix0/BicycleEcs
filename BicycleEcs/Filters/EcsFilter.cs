@@ -13,6 +13,8 @@ namespace BicycleEcs
         private IPoolsList poolsList;
 
         private List<int> filteredEntities = new(32);
+        private int locksCount = 0;
+        private Queue<DelayedEntity> delayed = new(16);
 
         public EcsFilter(ComponentsMask mask, IPoolsList poolsList, IEntitiesManager entitiesManager)
         {
@@ -23,13 +25,13 @@ namespace BicycleEcs
 
             for (int i = 0; i < include.Length; i++)
             {
-                IComponentPool pool = poolsList.GetPoolByIndex(i);
+                IComponentPool pool = poolsList.GetPoolByIndex(include[i]);
                 pool.OnEntityAdded += OnIncludeAdd;
                 pool.OnEntityRemoved += OnIncludeRemove;
             }
             for (int i = 0; i < exclude.Length; i++)
             {
-                IComponentPool pool = poolsList.GetPoolByIndex(i);
+                IComponentPool pool = poolsList.GetPoolByIndex(exclude[i]);
                 pool.OnEntityAdded += OnExcludeAdd;
                 pool.OnEntityRemoved += OnExcludeRemove;
             }
@@ -40,33 +42,70 @@ namespace BicycleEcs
         private void OnIncludeAdd(int entity)
         {
             if (IsCompatible(entity))
-                filteredEntities.Add(entity);
+                if (locksCount == 0)
+                    filteredEntities.Add(entity);
+                else
+                    delayed.Enqueue(new(OperationType.IncludeAdd, entity));
         }
 
         private void OnIncludeRemove(int entity)
         {
-            filteredEntities.Remove(entity);
+            if (locksCount == 0)
+                filteredEntities.Remove(entity);
+            else
+                delayed.Enqueue(new(OperationType.IncludeRemove, entity));
         }
 
         private void OnExcludeAdd(int entity)
         {
-            filteredEntities.Remove(entity);
+            if (locksCount == 0)
+                filteredEntities.Remove(entity);
+            else
+                delayed.Enqueue(new(OperationType.ExcludeAdd, entity));
         }
 
         private void OnExcludeRemove(int entity)
         {
             if (IsCompatible(entity))
-                filteredEntities.Add(entity);
+                if (locksCount == 0)
+                    filteredEntities.Add(entity);
+                else
+                    delayed.Enqueue(new(OperationType.ExcludeRemove, entity));
+        }
+
+        private void HandleDelayedEntities()
+        {
+            if (locksCount == 0)
+            {
+                while (delayed.TryDequeue(out DelayedEntity entity))
+                {
+                    switch (entity.operation)
+                    {
+                        case OperationType.IncludeAdd:
+                            OnIncludeAdd(entity.entity);
+                            break;
+                        case OperationType.IncludeRemove:
+                            OnIncludeRemove(entity.entity);
+                            break;
+                        case OperationType.ExcludeAdd:
+                            OnExcludeAdd(entity.entity);
+                            break;
+                        case OperationType.ExcludeRemove:
+                            OnExcludeRemove(entity.entity);
+                            break;
+                    };
+                }
+            }
         }
 
         private bool IsCompatible(int entity)
         {
             for (int i = 0; i < include.Length; i++)
-                if (!poolsList.GetPoolByIndex(i).HasComponent(entity))
+                if (!poolsList.GetPoolByIndex(include[i]).HasComponent(entity))
                     return false;
 
             for (int i = 0; i < exclude.Length; i++)
-                if (poolsList.GetPoolByIndex(i).HasComponent(entity))
+                if (poolsList.GetPoolByIndex(exclude[i]).HasComponent(entity))
                     return false;
 
             return true;
@@ -74,12 +113,12 @@ namespace BicycleEcs
 
         public IEnumerator<int> GetEnumerator()
         {
-            return filteredEntities.GetEnumerator();
+            return new FixingEnumerator(this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return GetEnumerator();
+            return new FixingEnumerator(this);
         }
 
         public void Dispose()
@@ -106,6 +145,61 @@ namespace BicycleEcs
 
             filteredEntities?.Clear();
             filteredEntities = null!;
+        }
+
+        private class FixingEnumerator : IEnumerator<int>
+        {
+            private bool disposed;
+            private readonly EcsFilter filter;
+            private readonly IEnumerator<int> enumerator;
+
+            public int Current => enumerator.Current;
+
+            object IEnumerator.Current => enumerator.Current;
+
+            public FixingEnumerator(EcsFilter filter)
+            {
+                this.filter = filter;
+                enumerator = filter.filteredEntities.GetEnumerator();
+
+                filter.locksCount++;
+            }
+
+            public bool MoveNext() => enumerator.MoveNext();
+
+
+            public void Reset() => enumerator.Reset();
+
+            public void Dispose()
+            {
+                if (disposed) return;
+                disposed = true;
+
+                enumerator.Dispose();
+
+                filter.locksCount--;
+                filter.HandleDelayedEntities();
+            }
+        }
+
+        private struct DelayedEntity
+        {
+            public DelayedEntity(OperationType operation, int entity)
+            {
+                this.operation = operation;
+                this.entity = entity;
+            }
+
+            public readonly OperationType operation;
+            public readonly int entity;
+        }
+
+        private enum OperationType
+        {
+            IncludeAdd,
+            IncludeRemove,
+            ExcludeAdd,
+            ExcludeRemove
         }
     }
 }

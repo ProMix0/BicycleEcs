@@ -83,8 +83,6 @@ namespace BicycleEcs
         public IComponentPool<T> GetComponentPool<T>()
             where T : struct
         {
-            EnsureCreated<T>();
-
             return (IComponentPool<T>)GetPoolByIndex(GetIndexOfPool<T>());
         }
 
