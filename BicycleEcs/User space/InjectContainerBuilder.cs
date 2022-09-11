@@ -12,6 +12,7 @@ namespace BicycleEcs
         IInjectContainerBuilder AddSystem<T>()
         where T : IEcsSystem;
         IInjectContainerBuilder AddSystem(Type type);
+        new IInjectContainerBuilder AddSystem(IEcsSystem system);
     }
 
     public static class Extensions
@@ -42,7 +43,14 @@ namespace BicycleEcs
             return this;
         }
 
-        public IEcsContainerBuilder AddSystem(IEcsSystem system)
+        public IInjectContainerBuilder AddSystem(IEcsSystem system)
+        {
+            builder.AddSystem(system);
+
+            return this;
+        }
+
+        IEcsContainerBuilder IEcsContainerBuilder.AddSystem(IEcsSystem system)
         {
             builder.AddSystem(system);
 
