@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BicycleEcs
+namespace BicycleEcs.Internal
 {
     internal static class Utils
     {

@@ -1,4 +1,6 @@
-﻿namespace BicycleEcs
+﻿using BicycleEcs.Internal;
+
+namespace BicycleEcs
 {
     public interface IComponentPool : IDisposable
     {
