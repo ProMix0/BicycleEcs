@@ -14,6 +14,7 @@ namespace BicycleEcs
 
         void EnsureCreated<T>() where T : struct;
         IComponentPool<T> GetComponentPool<T>() where T : struct;
+        IComponentPool GetComponentPool(Type component);
         int GetIndexOfPool<T>() where T : struct;
         IComponentPool GetPoolByIndex(int index);
         void Init(IEntitiesManager entityManager);
@@ -84,6 +85,16 @@ namespace BicycleEcs
             where T : struct
         {
             return (IComponentPool<T>)GetPoolByIndex(GetIndexOfPool<T>());
+        }
+
+        public IComponentPool GetComponentPool(Type component)
+        {
+            if (!component.IsValueType) throw new ArgumentException("Component type must be structure");
+
+            if (poolsIndexes.ContainsKey(component))
+                return GetPoolByIndex(poolsIndexes[component]);
+
+            return (IComponentPool)GetType().GetMethod(nameof(GetComponentPool), 1, new Type[] { })!.MakeGenericMethod(component).Invoke(this, null)!;
         }
 
         private void ResizePools(int newSize)
